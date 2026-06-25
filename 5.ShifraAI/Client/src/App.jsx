@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import axios from 'axios'
-import ProtectedRoute from './Components/ProtectedRoute'
-import Navbar from './Components/Navbar'
-import Builder from './pages/Builder'
-import Billing from './pages/Billing'
-import { Toaster } from "react-hot-toast"
-export const ServerUrl = "https://ai-voice-agent-server-b8xi.onrender.com"
-export const CLIENT_URL = "http://localhost:5173"
-=======
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
@@ -24,7 +10,6 @@ import Billing from "./pages/Billing";
 import { Toaster } from "react-hot-toast";
 export const ServerUrl = "https://ai-voice-agent-9180.onrender.com";
 export const CLIENT_URL = "https://ai-voice-agent-client.onrender.com";
->>>>>>> 63e3e24 (Fixed Google login)
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
