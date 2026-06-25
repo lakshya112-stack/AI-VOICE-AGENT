@@ -1,5 +1,5 @@
 const Gemini_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
 
 export const generateGeminiResponse = async ({ prompt, apikey, user }) => {
   try {
@@ -24,6 +24,10 @@ export const generateGeminiResponse = async ({ prompt, apikey, user }) => {
         ],
       }),
     });
+    console.log("Gemini Response Status:", response.status);
+    const responseBody = await response.text();
+    console.log("Gemini Response Body:", responseBody);
+    return;
 
     if (!response.ok) {
       // Invalid API Key
