@@ -8,7 +8,7 @@ import Navbar from "./Components/Navbar";
 import Builder from "./pages/Builder";
 import Billing from "./pages/Billing";
 import { Toaster } from "react-hot-toast";
-export const ServerUrl = "https://ai-voice-agent-9180.onrender.com";
+export const ServerUrl = "https://ai-voice-agent-server-b8xi.onrender.com";
 export const CLIENT_URL = "https://ai-voice-agent-client.onrender.com";
 function App() {
   const [user, setUser] = useState(null);
