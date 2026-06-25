@@ -1,48 +1,39 @@
-import express from "express"
-import dotenv from "dotenv"
-import connectDB from "./Configs/ConnectDB.js"
-import authRouter from "./Routes/auth.route.js"
-import cookieParser from "cookie-parser"
-dotenv.config()
-import cors from "cors"
-import userRouter from "./Routes/user.route.js"
-import assistantRouter from "./Routes/assistant.route.js"
-import billingRouter from "./Routes/billing.route.js"
+import express from "express";
+import dotenv from "dotenv";
+import connectDB from "./Configs/ConnectDB.js";
+import authRouter from "./Routes/auth.route.js";
+import cookieParser from "cookie-parser";
+dotenv.config();
+import cors from "cors";
+import userRouter from "./Routes/user.route.js";
+import assistantRouter from "./Routes/assistant.route.js";
+import billingRouter from "./Routes/billing.route.js";
 
+const app = express();
+const privateCors = cors({
+  origin: ["https://ai-voice-agent-client.onrender.com"],
 
-const app = express()
-const privateCors =
-  cors({
+  credentials: true,
+});
 
-    origin: [
-      "http://localhost:5173"
-    ],
+const publicCors = cors({
+  origin: "*",
+});
 
-    credentials: true
+app.use(express.json());
+app.use(cookieParser());
 
-  });
+app.get("/", (req, res) => {
+  res.json("Hello from Server");
+});
 
-  const publicCors =
-  cors({
-    origin: "*",
-  });
+app.use("/api/auth", privateCors, authRouter);
+app.use("/api/user", privateCors, userRouter);
+app.use("/api/billing", privateCors, billingRouter);
 
-app.use(express.json())
-app.use(cookieParser())
-
-
-
-app.get("/" , (req,res)=>{
-    res.json("Hello from Server")
-})
-
-app.use("/api/auth",privateCors , authRouter)
-app.use("/api/user",privateCors , userRouter)
-app.use("/api/billing",privateCors , billingRouter)
-
-app.use("/api/assistant",publicCors , assistantRouter)
-const PORT = process.env.PORT
-app.listen(PORT , ()=>{
-    console.log(`Server Started on Port ${PORT}`)
-    connectDB()
-})
+app.use("/api/assistant", publicCors, assistantRouter);
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server Started on Port ${PORT}`);
+  connectDB();
+});
