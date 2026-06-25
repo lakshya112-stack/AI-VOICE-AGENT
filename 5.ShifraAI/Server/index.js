@@ -11,7 +11,10 @@ import billingRouter from "./Routes/billing.route.js";
 
 const app = express();
 const privateCors = cors({
-  origin: ["https://ai-voice-agent-client.onrender.com"],
+  origin: [
+    "http://localhost:5173",
+    "https://ai-voice-agent-client.onrender.com",
+  ],
 
   credentials: true,
 });

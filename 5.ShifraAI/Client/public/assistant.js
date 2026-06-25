@@ -1,35 +1,31 @@
 (function () {
+  // userData
 
+  const script = document.currentScript;
 
-    // userData
+  const userId = script?.dataset?.userId;
 
-    const script = document.currentScript;
+  const theme = "dark";
 
-    const userId = script?.dataset?.userId
+  let assistantConfig = null;
 
-    const theme = "dark"
+  // load CSS
 
-    let assistantConfig = null
+  const link = document.createElement("link");
 
+  link.rel = "stylesheet";
 
-    // load CSS
+  link.href = "https://ai-voice-agent-client.onrender.com/assistant.css";
 
-    const link = document.createElement("link")
+  document.head.appendChild(link);
 
-    link.rel = "stylesheet"
+  // Create PopUp
 
-    link.href = "https://ai-voice-agent-client.onrender.com/assistant.css"
+  const popup = document.createElement("div");
 
-    document.head.appendChild(link)
+  popup.className = `shifra-popup theme-${theme}`;
 
-
-    // Create PopUp
-
-    const popup = document.createElement("div")
-
-    popup.className = `shifra-popup theme-${theme}`
-
-    popup.innerHTML = `
+  popup.innerHTML = `
     <div class="shifra-overlay"></div>
 
     <div class="shifra-content">
@@ -92,256 +88,196 @@
     
     `;
 
-    document.body.appendChild(popup);
+  document.body.appendChild(popup);
 
-    // floating Button
+  // floating Button
 
-    const button = document.createElement("button")
+  const button = document.createElement("button");
 
-    button.className = `shifra-btn theme-${theme}`
+  button.className = `shifra-btn theme-${theme}`;
 
-    button.innerHTML = `
+  button.innerHTML = `
     <img 
     src="https://ai-voice-agent-client.onrender.com/logo.png"
     alt="logo"
     />`;
-    document.body.appendChild(button)
+  document.body.appendChild(button);
 
+  // toggle popup
 
+  let open = false;
 
+  button.onclick = () => {
+    open = !open;
+    popup.style.display = open ? "flex" : "none";
+  };
 
-    // toggle popup
+  // load Assistant
 
-    let open = false
+  const loadAssistant = async () => {
+    try {
+      const res = await fetch(
+        `https://ai-voice-agent-server-b8xi.onrender.com/api/assistant/config/${userId}`,
+      );
 
-    button.onclick = () => {
-        open = !open;
-        popup.style.display = open ? "flex" : "none";
+      const data = await res.json();
+
+      if (data) {
+        assistantConfig = data.user;
+        applyConfig();
+      }
+    } catch (error) {
+      console.log("Assistant Load Error:", error);
     }
+  };
 
+  const applyConfig = () => {
+    if (!assistantConfig) return;
 
-    // load Assistant
+    popup.className = `shifra-popup theme-${assistantConfig.theme}`;
 
-    const loadAssistant = async () => {
-        try {
-            const res = await fetch(`https://ai-voice-agent-server-b8xi.onrender.com/api/assistant/config/${userId}`)
+    button.className = `shifra-btn theme-${assistantConfig.theme}`;
 
-            const data = await res.json()
+    const title = popup.querySelector(".shifra-title");
 
-            if (data) {
-                assistantConfig = data.user
-                applyConfig()
-            }
+    title.innerHTML = `Hello! I'm ${assistantConfig.assistantName}`;
 
-        } catch (error) {
-            console.log(
-                "Assistant Load Error:",
-                error
-            );
-        }
-    }
-
-
-    const applyConfig = () => {
-        if (!assistantConfig) return;
-
-        popup.className = `shifra-popup theme-${assistantConfig.theme}`
-
-        button.className = `shifra-btn theme-${assistantConfig.theme}`
-
-        const title = popup.querySelector(".shifra-title")
-
-        title.innerHTML = `Hello! I'm ${assistantConfig.assistantName}`;
-
-        const subTitle = popup.querySelector(".shifra-sub")
-        subTitle.innerHTML = `
+    const subTitle = popup.querySelector(".shifra-sub");
+    subTitle.innerHTML = `
     Welcome to
     ${assistantConfig.businessName}.
     <br />
     Ask anything about your website.
   `;
+  };
 
+  loadAssistant();
 
-    }
+  // Element
 
-    loadAssistant()
+  const status = popup.querySelector(".shifra-status");
 
+  const wave = popup.querySelector(".shifra-wave");
 
-    // Element
+  const userText = popup.querySelector(".shifra-user-text");
 
+  const aiText = popup.querySelector(".shifra-ai-text");
 
-    const status =
-        popup.querySelector(
-            ".shifra-status"
-        );
+  const mic = popup.querySelector(".shifra-mic");
 
-    const wave =
-        popup.querySelector(
-            ".shifra-wave"
-        );
+  // text-speech
 
-    const userText =
-        popup.querySelector(
-            ".shifra-user-text"
-        );
+  const speak = (text) => {
+    window.speechSynthesis.cancel();
 
-    const aiText =
-        popup.querySelector(
-            ".shifra-ai-text"
-        );
+    // Show AI response
+    aiText.innerText = text;
 
-    const mic =
-        popup.querySelector(
-            ".shifra-mic"
-        );
+    status.innerText = "AI Speaking...";
 
+    const speech = new SpeechSynthesisUtterance(text);
 
+    speech.lang = "hi-IN";
 
-    // text-speech
+    speech.rate = 1;
 
-    const speak = (text) => {
-        window.speechSynthesis.cancel();
+    speech.pitch = 1;
 
-        // Show AI response
-        aiText.innerText =
-            text;
+    speech.volume = 1;
 
-        status.innerText =
-            "AI Speaking...";
+    // Voice end
+    speech.onend = () => {
+      status.innerText = "Tap button to Speak";
 
-        const speech = new SpeechSynthesisUtterance(text)
+      wave.style.opacity = "0";
+    };
 
-        speech.lang =
-            "hi-IN";
+    // Start speaking
+    console.log("Speaking:", text);
+    window.speechSynthesis.speak(speech);
+  };
 
-        speech.rate = 1;
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        speech.pitch = 1;
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
 
-        speech.volume = 1;
+    recognition.lang = "en-US";
 
-        // Voice end
-        speech.onend = () => {
+    recognition.continuous = false;
 
-            status.innerText =
-                "Tap button to Speak";
+    recognition.interimResults = false;
 
-            wave.style.opacity =
-                "0";
-        };
+    mic.onclick = () => {
+      if (window.speechSynthesis.speaking) {
+        return;
+      }
+      wave.style.opacity = "1";
 
-        // Start speaking
-        window.speechSynthesis.speak(
-            speech
-        );
-    }
+      status.innerText = "Listening...";
 
+      userText.innerText = "";
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-
-
-    if(SpeechRecognition){
-
-        const recognition = new SpeechRecognition();
-
-        recognition.lang =
-      "en-US";
-
-    recognition.continuous =
-      false;
-
-    recognition.interimResults =
-      false;
-
-
-      mic.onclick=()=>{
-        wave.style.opacity =
-        "1";
-
-      status.innerText =
-        "Listening...";
-
-      userText.innerText =
-        "";
-
-      aiText.innerText =
-        "";
+      aiText.innerText = "";
 
       recognition.start();
-      }
+    };
 
+    recognition.onresult = (e) => {
+      const text = e.results[0][0].transcript;
 
-      recognition.onresult = (e)=>{
-        const text = e.results[0][0].transcript
+      userText.innerText = "You: " + text;
 
-        userText.innerText = "You: " + text;
+      recognition.stop();
 
-        recognition.stop();
+      setTimeout(async () => {
+        try {
+          status.innerText = "Thinking...";
 
+          const res = await fetch(
+            "https://ai-voice-agent-server-b8xi.onrender.com/api/assistant/ask",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                message: text,
+                userId,
+              }),
+            },
+          );
 
-        setTimeout( async () => {
-            try {
-                status.innerText = "Thinking...";
-                
+          const data = await res.json();
+          console.log(data);
 
-                const res = await fetch("https://ai-voice-agent-server-b8xi.onrender.com/api/assistant/ask" , {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":
-                      "application/json",
-                    } ,
-                    body:JSON.stringify({
-                        message:text,
-                        userId
-                    })
-                })
+          if (data.success) {
+            if (data.action === "navigate") {
+              speak(data.response);
 
-                const data = await res.json()
-                console.log(data)
-
-                if(data.success){
-
-                    if(data.action === "navigate"){
-                        speak(data.response)
-
-                        setTimeout(()=>{
-                            window.location.href = data.path
-
-                        },1500)
-
-                    }else{
-                        speak(data.aiResponse)
-                    }
-
-                }else{
-                    speak("Response Error please Check your plan")
-
-                }
-
-
-
-            } catch (error) {
-                console.log(error)
-                speak("AI Server Error")
-                
+              setTimeout(() => {
+                window.location.href = data.path;
+              }, 1500);
+            } else {
+              speak(data.aiResponse);
             }
-        },600)
-      };
+          } else {
+            speak("Response Error please Check your plan");
+          }
+        } catch (error) {
+          console.log(error);
+          speak("AI Server Error");
+        }
+      }, 600);
+    };
 
-      recognition.onerror = ()=>{
-        status.innerText =
-          "Tap button to Speak";
+    recognition.onerror = () => {
+      status.innerText = "Tap button to Speak";
 
-        wave.style.opacity =
-          "0";
-      }
-
-
-    }
-    else{
-        status.innerText =
-      "Speech Recognition not supported";
-    }
-
-
+      wave.style.opacity = "0";
+    };
+  } else {
+    status.innerText = "Speech Recognition not supported";
+  }
 })();
